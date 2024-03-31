@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Box, Heading, Text, Button, Input, Textarea, Select, Grid, GridItem, useToast } from "@chakra-ui/react";
-import { FaPlus, FaTrash, FaEdit, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { Box, Heading, Text, Button, Input, Textarea, Select, Grid, GridItem, useToast, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
+import { FaPlus, FaTrash, FaEdit, FaArrowUp, FaArrowDown, FaClock } from "react-icons/fa";
 
 const INITIAL_RESPONSES = [
   { id: 1, text: "Hola! ¿En qué puedo ayudarte?", type: "text", parent: null, next: 2 },
@@ -25,6 +25,7 @@ const AutoResponseManager = () => {
   const [type, setType] = useState("text");
   const [parent, setParent] = useState("");
   const [next, setNext] = useState("");
+  const [delay, setDelay] = useState(0);
   const [editingNext, setEditingNext] = useState(null);
   const toast = useToast();
 
@@ -48,6 +49,7 @@ const AutoResponseManager = () => {
       type,
       parent: parent ? parseInt(parent) : null,
       next: next ? parseInt(next) : null,
+      delay: parseInt(delay),
     };
     setResponses([...responses, newResponse].sort((a, b) => a.id - b.id));
     setText("");
@@ -104,7 +106,14 @@ const AutoResponseManager = () => {
                 <option value="url">URL</option>
                 <option value="reset">Reiniciar</option>
               </Select>
-              <Input type="number" value={next} onChange={(e) => setNext(e.target.value)} placeholder="ID de siguiente respuesta" mb={4} />
+              <Input type="number" value={next} onChange={(e) => setNext(e.target.value)} placeholder="ID de siguiente respuesta" mb={2} />
+              <NumberInput value={delay} onChange={(value) => setDelay(value)} min={0} max={60} mb={4}>
+                <NumberInputField placeholder="Retraso en segundos" />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
               <Button type="submit" colorScheme="blue" leftIcon={<FaPlus />}>
                 Agregar
               </Button>
@@ -147,6 +156,9 @@ const AutoResponseManager = () => {
                   </Text>
                   <Text>
                     <strong>Padre:</strong> {response.parent || "N/A"}
+                  </Text>
+                  <Text>
+                    <strong>Retraso:</strong> {response.delay} segundos <FaClock />
                   </Text>
                   <Button size="xs" colorScheme="red" leftIcon={<FaTrash />} onClick={() => handleDelete(response.id)} mr={2}>
                     Eliminar
